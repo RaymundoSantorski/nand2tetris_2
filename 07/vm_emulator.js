@@ -21,7 +21,7 @@ let commands = {
     'if-goto': 'C_IF',
     'function': 'C_FUNCTION',
     'call': 'C_CALL',
-    'return': 'c_RETURN'
+    'return': 'C_RETURN'
 }
 
 let locations = {
