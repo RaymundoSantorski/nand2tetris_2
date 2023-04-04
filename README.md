@@ -93,3 +93,17 @@ Recibe como unico parametro el nombre de la etiqueta a la cual se quiere hacer e
 ##### writeFunction
 Está función lo que hace es preparar la memoria para una una función, crea la etiqueta y agrega a la pila registros vacíos como se requiera, en función de la cantidad de variables que requiera nuestra función. Al escribir una función en VM es necesario escribir el nombre de la función seguido de esta cantidad de variables.
 Recibe como parametros el nombre de la función y el numero de variables. 
+
+##### writeCall
+Es de las funciones más complejas pues tiene que dejar preparada la memoria para llamar a otra función y proporcionarle su contexto limpio.
+Al momento de escribir la instrucción en VM es necesario escribir el numero de argumentos que necesita la función.
+Esto quiere decir que al momento de llamar, por ejemplo a una función que recibe 2 argumentos, se tendría que escribir de la forma ***call funtionName 2*** y esta sencilla instrucción va a resultar en un codigo ensamblador bastante largo, se prepara el stack actual para la función apartir de la posicón actual del puntero, si se reciben n argumentos, se usan n posiciones atrás de la ultima posición del puntero.
+Se guardan los valores actuales de los segmentos ***THIS***, ***THAT***, ***ARG*** y ***SP***, con el fin de poder volver a estas posiciones después de terminar de ejecutar la función a la que se esta llamando, luego se actualizan esos punteros a la nueva posición que tendrá dentro de la memoria.
+Se obtiene la posición del código donde inicia la función que queremos llamar, e inmediatamente se llama a hacer el salto incondicional.
+```
+    @functionName
+    o;JMP
+```
+Inmediatamente después de esta llamada se crea una etiqueta que servirá para saber a donde hacer el salto para regresar al punto donde nos quedamos.
+Si se llama a una función que este dentro de otro archivo, se obtiene el nombre del archivo y se agrega a un arreglo, del cuál después obtendremos los archivos que tenemos pendientes de interpretar. También se lleva un conteo de cuantas llamadas hemos hecho a distintas funciones, de manera que si llamamos en distintas ocasiones a la misma función, se puede identificar de forma fácil a que parte regresar gracias al numero de llamada.
+Una funcionalidad que optimizaría más este proceso sería traducir el archivo primario completo y luego solo traducir las funciones que se utilicen dentro de otro archivo, no todas y así no hacer el programa más grande de lo necesario
