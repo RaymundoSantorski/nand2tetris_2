@@ -13,8 +13,8 @@ El primer paso para escribir el VM translator será escribir un traductor de la 
 
 ### **vm_emulator**
 Utilizamos la arquitectura planteada en el curso para mantener limpio nuestro codigo y hacerlo más fácil de entender.
-Utilizamos un arreglo 'ariLogCommands' que contiene todas las intrucciones que denotan una operación aritmetica o logica (add, sub, neg, eq, gt, lt, and, or, not), un objeto 'commands' que son todos los comandos que no son logicos o aritmeticos (pop, push, label, goto, if-goto, function, call, return) y tienen un valor asociado que es como identificaremos que instrucción es cuando aparezca en el codigo, aunque esn este modulo solo utilizaremos 'pop' y 'push' para poder hacer las operaciones.
-También tenemos un objeto 'locations': 
+Utilizamos un arreglo ***ariLogCommands*** que contiene todas las intrucciones que denotan una operación aritmetica o logica (add, sub, neg, eq, gt, lt, and, or, not), un objeto ***commands*** que son todos los comandos que no son logicos o aritmeticos (pop, push, label, goto, if-goto, function, call, return) y tienen un valor asociado que es como identificaremos que instrucción es cuando aparezca en el codigo, aunque esn este modulo solo utilizaremos ***pop*** y ***push*** para poder hacer las operaciones.
+También tenemos un objeto ***locations***: 
 ```
 let locations = {
     local: 'LCL',
@@ -23,22 +23,22 @@ let locations = {
     that: 'THAT',
 }
 ```
-'locations' incluye los segmentos de memoria donde podemos guardar los valores de las operaciones que realicemos.
+***locations*** incluye los segmentos de memoria donde podemos guardar los valores de las operaciones que realicemos.
 
 El programa tiene como punto de entrada la función main. Como encargado de escribir el codigo ensamblador tenemos la clase CodeWriter y para interpretar las instrucciones tenemos la clase Parser.
 main es una función unica que se encarga de llamar una instancia de la clase parser, extraer de ahí la instrucción y sus parametros y luego utiliza una instancia de la clase CodeWriter para escribir el comando en ensamblador según corresponda.
 
 #### Parser 
-Tiene un constructor que recibe el archivo del cual se extraerán las instrucciones. Tiene un metodo 'hasMoreCommands' que nos dice si hay más comandos en el archivo y así saber si continuaremos con el proceso o debemos terminar, así evitamos error en la ejecución del programa.
-Tenemos el metodo 'advance' que lee el siguiente comando valido en el archivo y lo guarda.
-Está el metodo 'commandType' que nos dice el tipo del comando actual (el que está guardado).
-Y tenemos el metodo 'fields', que regresa en un arreglo los segmentos de la instrucción actual, que serían el comando en si, en que segmento de la memoria se va a guardar y el indice de ese segmento.
+Tiene un constructor que recibe el archivo del cual se extraerán las instrucciones. Tiene un metodo ***hasMoreCommands*** que nos dice si hay más comandos en el archivo y así saber si continuaremos con el proceso o debemos terminar, así evitamos error en la ejecución del programa.
+Tenemos el metodo ***advance*** que lee el siguiente comando valido en el archivo y lo guarda.
+Está el metodo ***commandType*** que nos dice el tipo del comando actual (el que está guardado).
+Y tenemos el metodo ***fields***, que regresa en un arreglo los segmentos de la instrucción actual, que serían el comando en si, en que segmento de la memoria se va a guardar y el indice de ese segmento.
 
 #### CodeWriter
 Tiene un constructor que recibe la referencia al archivo de salida (donde escribirá los comandos traducidos) y el nombre del archivo que se está leyendo.
-Tiene un metodo 'writeAritmetic' que se encarga de escribir el codigo en lenguaje ensamblador según la instrucción aritmetica o lógica recibida. unicamente recibe el comando.
-Tiene un metodo 'writePushPop' que escribe en lenguaje ensamblador las intrucciones de tipo push/pop. Recibe el comando, el segmento y el indice.
-Y tiene el metodo 'close' que sirve para cerrar el archivo en el que se está escribiendo y así evitar errores en la ejecución del programa.
+Tiene un metodo ***writeAritmetic*** que se encarga de escribir el codigo en lenguaje ensamblador según la instrucción aritmetica o lógica recibida. unicamente recibe el comando.
+Tiene un metodo ***writePushPop*** que escribe en lenguaje ensamblador las intrucciones de tipo push/pop. Recibe el comando, el segmento y el indice.
+Y tiene el metodo ***close*** que sirve para cerrar el archivo en el que se está escribiendo y así evitar errores en la ejecución del programa.
 
 Cabe aclarar que la importancia de todos estos metodos radica en que no solo es traducir una palabra por otra, cada instrucción de la maquina virtual equivale a varias instrucciones en lenguaje ensamblador.
 Por ejemplo para hacer un push, tenemos que apuntar la dirección de memoria hacia el siguiente espacio vacío en la pila, luego insertar el valor, luego aumentar el indice para apuntar al siguiente espacio vacío para dejarlo listo para hacer otra operación. 
@@ -50,3 +50,46 @@ Debemos ejecutar el programa junto con el archivo .tst (archivos de prueba) corr
 Este archivo .out lo compara con otro archivo proporcionado .cmp y si son iguales significa que el programa se tradujo exitosamente.
 Tenemos pruebas basicas, pruebas de acceso a la memoria, de puntero y estaticas, así como pruebas de Aritmetica de pila, que incluyen suma y la prueba de la pila.
 
+## Modulo 08 **VM II: Program Control**
+
+En este modulo nos encargaremos de implementar en nuestra VM las intrucciones de control y funciones.
+También añadiremos funcionalidad para interpretar varios programas escritos en VM.
+
+### **fullVM**
+Es nuestro programa final que se encarga de interpretar las instrucciones y escribirlas en lenguaje ensamblador.
+
+Aún contiene el arreglo de comandos logicos y aritmeticos, el objeto con el resto tipos de comandos y el arreglo de los segmentos de memoria donde podemos almacenar los resultados. Incluye las clases Parser y CodeWriter, así como la función main, solo que en este modulo extendemos su funcionalidad. Añadimos una función qué explicamos a continuación y también listamos los nuevos metodos de la clase CodeWriter.
+
+#### loop
+Añadimos esta nueva función para realizar el proceso de verificar si aun hay comandos en el archivo .vm que estamos interpretando, así como escribir la instrucción en el archivo destino.
+Recibe como argumentos las instancias de nuestras clases Parser y CodeWriter de manera que trabajemos con los datos actuales.
+
+Utilizamos, como lo dice su nombre, un bucle while y como condición le asignamos el valor de hasMoreCommands, así que cuando ya no tengamos más comandos por interpretar, el bucle finalizará. 
+Dentro del bucle lo primero que hacemos es leer la siguiente instrucción mediate el metodo ***advance*** de la clase Parser, extraemos los valores ***command***, ***segment*** e ***index*** utilizando el metodo ***fields*** y el valor ***type*** con el metodo ***commandType*** de la clase ***Parser***, usamos un switch con el valor type y dependiendo del tipo de comando es que mandamos a llamar los metodos necesarios de la clase ***CodeWriter*** para traducir el comando. Ya se han descrito algunos de los metodos, a continuación se listan y explican los restantes.
+
+#### CodeWriter
+Se listan los nuevos metodos y se explica su función.
+
+##### setFileName
+Método sencillo para informar a la instancia que se inició la traducción de una nuevo archivo .vm, cambia el nombre del archivo que se está traduciendo para poder asignar los nombres de las funciones de con una combinación del nombre de la propia función y del nombre del archivo del que proviene, y así al traducirse las instrucciones, aun si hubiera una función con el mismo nombre en distintos archivos, para el programa en lenguaje ensamblador serían funciones distintas.
+El unico parametro que recibe es fileName, que es el nombre que queremos asignar.
+
+##### writeInit
+Es el primer metodo que se llama y se utiliza una sola vez independientemente de cuantos archivos compongan nuestro programa completo.
+Sirve para escribir las instrucciones de arranque, es decir, almacena las referencias inciales hacia nuestros segmentos de memoria de manera que se puedan comenzar a utilizar y llama a la función ***Sys.init*** que es una función que siempre debe escribirse, proviene de una archivo llamado ***Sys*** proveniente de System, y con llama su función ***init***, siempre debemos escribir esta instrucción pues es el punto de entrada de nuestro programa.
+No recibe parametros.
+
+##### writeLabel
+Tiene una función sencilla pero muy importante, escribe en nuestro codigo ensamblador una etiqueta ***(label)*** y recibe como parametro el nombre que queremos ponerle a la etiqueta.
+
+##### writeGoto
+Igual que writeLabel es una función sencilla pero importante, se encarga de escribir las instrucciones en ensamblador para hacer un salto hasta la linea del codigo donde se encuentra la etiqueta del codigo que se quiere ejecutar, normalmente dicha etiqueta va a ser en representación de una función.
+Recibe el nombre de la etiqueta a la que quiere hacerse el salto.
+
+##### writeIf
+Esta función escribe las instrucciones necesarias para hacer un salto solo si el ultimo valor de la pila es igual a ***true***, este valor sería equivalente a 1111111111111111 (16 unos seguidos) y ***false*** sería 0000000000000000 (16 ceros seguidos), la instrucción hace que el programa evalue si el valor es distinto de 0, pues 0 sería equivalente a ***false*** y si es distinto, debería ser true. 
+Recibe como unico parametro el nombre de la etiqueta a la cual se quiere hacer el salto.
+
+##### writeFunction
+Está función lo que hace es preparar la memoria para una una función, crea la etiqueta y agrega a la pila registros vacíos como se requiera, en función de la cantidad de variables que requiera nuestra función. Al escribir una función en VM es necesario escribir el nombre de la función seguido de esta cantidad de variables.
+Recibe como parametros el nombre de la función y el numero de variables. 
