@@ -107,3 +107,23 @@ Se obtiene la posición del código donde inicia la función que queremos llamar
 Inmediatamente después de esta llamada se crea una etiqueta que servirá para saber a donde hacer el salto para regresar al punto donde nos quedamos.
 Si se llama a una función que este dentro de otro archivo, se obtiene el nombre del archivo y se agrega a un arreglo, del cuál después obtendremos los archivos que tenemos pendientes de interpretar. También se lleva un conteo de cuantas llamadas hemos hecho a distintas funciones, de manera que si llamamos en distintas ocasiones a la misma función, se puede identificar de forma fácil a que parte regresar gracias al numero de llamada.
 Una funcionalidad que optimizaría más este proceso sería traducir el archivo primario completo y luego solo traducir las funciones que se utilicen dentro de otro archivo, no todas y así no hacer el programa más grande de lo necesario
+
+##### writeReturn
+Esta función de la maquina virtual se encarga de regresar la memoria a un estado en el que se pueda seguir ejecutando el codigo desde el cual se llamo a la función que esta realizando el return.
+Por ejemplo, supongamos que tenemos una función llamada sum que realiza una suma de dos valores, por lo tanto dicha función recibirá dos argumentos (los dos valores que se van a sumar), asi que en nuestro VM language, antes de hacer la llamada a mult, tendríamos que hacer push de los dos valores al stack y después hacer la llamada, especificando que la función recibirá dos argumentos. De la siguiente manera:
+```
+    (init)
+    push 5
+    push 6
+    call sum 2
+```
+Esto sería como se escribe en VM language, pero en Hack Assembler es mucho más complejo. Luego, la función sum sería de la forma:
+```
+    (sum) 2
+    push arg 0
+    push arg 1
+    add
+    return
+```
+(Son codigos de ejemplo y no reflejan como es en realidad el codigo de una función similar)
+La función sum haría push de sus dos argumentos al stack, luego haría la suma, por lo que reemplazaría los dos valores por el resultado de su suma, luego al hacer return, se reemplazan los dos argumentos por el valor resultado de la función sum, entre otros procesos, como regresar los indices de los segmentos de memoria a los que se estaban trabajando antes de hacer la llamada, y seguir ejecutando la función principal desde donde se quedó. 
