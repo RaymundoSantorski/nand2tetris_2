@@ -128,7 +128,9 @@ Esto sería como se escribe en VM language, pero en Hack Assembler es mucho más
 (Son codigos de ejemplo y no reflejan como es en realidad el codigo de una función similar)
 La función sum haría push de sus dos argumentos al stack, luego haría la suma, por lo que reemplazaría los dos valores por el resultado de su suma, luego al hacer return, se reemplazan los dos argumentos por el valor resultado de la función sum, entre otros procesos, como regresar los indices de los segmentos de memoria a los que se estaban trabajando antes de hacer la llamada, y seguir ejecutando la función principal desde donde se quedó. 
 
-## Modulo 09 **Compiler I: Syntax Analysis**
+## Modulo 09 **High Level Language**
+
+## Modulo 10 **Compiler I: Syntax Analysis**
 
 En este modulo crearemos la primera parte de nuestro compilador, que se encargará de analizar la sintaxis de nuestros programas escritos en lenguaje Jack, nos aseguraremos de que entienda las instrucciones que nosotros escribirmos mediante una salida auxiliar en formato XML, pues no escribirá codigo VM hasta el siguiente modulo, donde programaremos el generador de codigo, que como su nombre lo indica, generará codigo a partir de las instrucciones que ya se hayan procesado por nuestri analizador de sintaxis.
 
