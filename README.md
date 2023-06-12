@@ -135,3 +135,16 @@ La función sum haría push de sus dos argumentos al stack, luego haría la suma
 En este modulo crearemos la primera parte de nuestro compilador, que se encargará de analizar la sintaxis de nuestros programas escritos en lenguaje Jack, nos aseguraremos de que entienda las instrucciones que nosotros escribirmos mediante una salida auxiliar en formato XML, pues no escribirá codigo VM hasta el siguiente modulo, donde programaremos el generador de codigo, que como su nombre lo indica, generará codigo a partir de las instrucciones que ya se hayan procesado por nuestri analizador de sintaxis.
 
 Este proceso incluye ***Lexical Analysis***, ***Grammar***, ***Parse Trees***, ***Parser Logic***, ***The Jack Grammar***, para finalmente llegar a ***The Jack Analyzer***, que será implementado mediante las recomendaciones de los instructores. Todos estas partes se explicarán a continuación, conforme se vaya estudiando cada una y al final se explicará el analizador de sintaxis, una vez que haya sido implementado.
+
+### JackTokenizer ###
+
+Es la clase que se encarga de tokenizar linea por linea del programa Jack, tiene varios metodos, descritos a continuación.
+
+#### constructor ####
+Inicializa las variables necesarias para poder trabajar con el documento, asigna el contenido del documento a una variable estatica, inicializa un indice en 0 y en otra variable guarda la cantidad de lineas del programa.
+
+#### hasMoreTokens ####
+Devuelve un booleano, verdadero si hay más lineas que leer del programa y false de lo contrario, lo hace comparando el valor del indice con la longitud del documento.
+
+#### advance ####
+Incrementa el valor del indice en 1, de manera que se pueda leer la siguiente linea del documento.
