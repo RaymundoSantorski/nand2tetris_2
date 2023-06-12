@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const keywords = [
     'class',
     'constructor',
@@ -56,3 +58,41 @@ const numberStrings = [
     '8',
     '9'
 ];
+
+class JackTokenizer{
+    constructor(){}
+
+    hasMoreTokens(){}
+
+    advance(){}
+
+    tokenType(){}
+
+    keyWord(){}
+
+    symbol(){}
+
+    identifier(){}
+
+    intVal(){}
+
+    stringVal(){}
+}
+
+class CompilationEngine{
+    compileExpression(){}
+
+    compileTerm(){}
+
+    compileExpressionList(){}
+
+    compileStatements(){}
+
+    compileIfStatement(){}
+
+    compileWhileStatement(){}
+}
+
+function main(){
+    
+}
