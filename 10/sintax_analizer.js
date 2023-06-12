@@ -68,12 +68,15 @@ class JackTokenizer{
         this.inputFile = inputFile.filter(value => value !== '' || value !== '\n');
         this.index = 0;
         this.len = this.inputFile.length;
-        console.log(this.len);
     }
 
-    hasMoreTokens(){}
+    hasMoreTokens(){
+        return this.index < this.len;
+    }
 
-    advance(){}
+    advance(){
+        this.index++;
+    }
 
     tokenType(){}
 
@@ -107,7 +110,9 @@ function main(){
     const buffer = readFileSync(filename, {});
     const inputfile = buffer.toString().trim().split('\n');
     const jackTokenizer = new JackTokenizer(inputfile);
-
+    while(jackTokenizer.hasMoreTokens()){
+        jackTokenizer.advance();
+    }
 }
 
 main();
