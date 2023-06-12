@@ -1,4 +1,4 @@
-const fs = require('fs');
+const {readFile, readFileSync} = require('fs');
 
 const keywords = [
     'class',
@@ -57,10 +57,19 @@ const numberStrings = [
     '7',
     '8',
     '9'
-];
+];  
 
 class JackTokenizer{
-    constructor(){}
+    static inputFile;
+    static index;
+    static len;
+
+    constructor(inputFile = []){
+        this.inputFile = inputFile.filter(value => value !== '' || value !== '\n');
+        this.index = 0;
+        this.len = this.inputFile.length;
+        console.log(this.len);
+    }
 
     hasMoreTokens(){}
 
@@ -94,5 +103,11 @@ class CompilationEngine{
 }
 
 function main(){
-    
+    const filename = process.argv[2];
+    const buffer = readFileSync(filename, {});
+    const inputfile = buffer.toString().trim().split('\n');
+    const jackTokenizer = new JackTokenizer(inputfile);
+
 }
+
+main();
