@@ -141,10 +141,14 @@ Este proceso incluye ***Lexical Analysis***, ***Grammar***, ***Parse Trees***, *
 Es la clase que se encarga de tokenizar linea por linea del programa Jack, tiene varios metodos, descritos a continuación.
 
 #### constructor ####
-Inicializa las variables necesarias para poder trabajar con el documento, asigna el contenido del documento a una variable estatica, inicializa un indice en 0 y en otra variable guarda la cantidad de lineas del programa.
+Inicializa las variables necesarias para poder trabajar con el documento, asigna el contenido del documento a una variable estatica, inicializa un indice i y un j en 0 y en otra variable guarda la cantidad de lineas del programa.
 
 #### hasMoreTokens ####
-Devuelve un booleano, verdadero si hay más lineas que leer del programa y false de lo contrario, lo hace comparando el valor del indice con la longitud del documento.
+Devuelve un booleano, verdadero si hay más tokens que leer del programa y false de lo contrario, lo hace comparando el valor del indice i con la longitud del documento, así como el indice j con la longitud de la linea actual.
 
 #### advance ####
-Incrementa el valor del indice en 1, de manera que se pueda leer la siguiente linea del documento.
+Incrementa el valor del indice j en 1 mientras haya más tokens en la linea actual del documento o la devuelve a valor 0 e incrementa el indice i en 1, de manera que se pueda leer el siguiente token del documento.
+
+#### tokenType ####
+Es un getter que devuelve una constante dependiendo del tipo de token que se este evaluando actualmente.
+Revisa en la lista de palabras reservadas, luego en la de simbolos para ver si pertenece a una de esas listas, luego analiza mediante expresiones regulares si la estructura del token coincide con la de una constante numerica, de texto o si es un identificador.
