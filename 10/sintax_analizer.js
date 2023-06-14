@@ -2,26 +2,26 @@ const {readFileSync} = require('fs');
 
 const keywords = [
     'class',
-    'constructor',
-    'function',
     'method',
-    'field',
-    'static',
-    'var',
+    'function',
+    'constructor',
     'int',
-    'char',
     'boolean',
+    'char',
     'void',
-    'true',
-    'false',
-    'null',
-    'this',
+    'var',
+    'static',
+    'field',
     'let',
     'do',
     'if',
     'else',
     'while',
-    'return'
+    'return',
+    'true',
+    'false',
+    'null',
+    'this',
 ];
 
 const symbols = [
@@ -107,24 +107,37 @@ class JackTokenizer{
         }
     }
 
-    get tokenType(){
-        const currentToken = this.currentLine[this.jindex];
-        if(keywords.includes(currentToken)) return tokenTypes[0];
-        if(symbols.includes(currentToken)) return tokenTypes[1];
-        if(numberRegex.test(currentToken)) return tokenTypes[2];
-        if(unicodeRegex.test(currentToken)) return tokenTypes[3];
-        if(identifierRegex.test(currentToken)) return tokenTypes[4];
+    get _token(){
+        return this.currentLine[this.jindex];
     }
 
-    keyWord(){}
+    get tokenType(){
+        if(keywords.includes(this._token)) return tokenTypes[0];
+        if(symbols.includes(this._token)) return tokenTypes[1];
+        if(numberRegex.test(this._token)) return tokenTypes[2];
+        if(unicodeRegex.test(this._token)) return tokenTypes[3];
+        if(identifierRegex.test(this._token)) return tokenTypes[4];
+    }
 
-    symbol(){}
+    get keyWord(){
+        return this._token.toUpperCase();
+    }
 
-    identifier(){}
+    get symbol(){
+        return this._token;
+    }
 
-    intVal(){}
+    get identifier(){
+        return this._token;
+    }
 
-    stringVal(){}
+    get intVal(){
+        return this._token;
+    }
+
+    get stringVal(){
+        return this._token.replaceAll('"', '');
+    }
 }
 
 class CompilationEngine{
@@ -145,10 +158,27 @@ function main(){
     const filename = process.argv[2];
     const buffer = readFileSync(filename, {});
     const inputfile = buffer.toString().trim().split('\n');
-    const jackTokenizer = new JackTokenizer(inputfile);
-    while(jackTokenizer.hasMoreTokens){
-        console.log(jackTokenizer.tokenType);
-        jackTokenizer.advance();
+    const tokenizer = new JackTokenizer(inputfile);
+    while(tokenizer.hasMoreTokens){
+        const tokenType = tokenizer.tokenType;
+        switch(tokenType){
+            case 'KEYWORD':
+                console.log(tokenizer.keyWord);
+                break;
+            case 'SYMBOL':
+                console.log(tokenizer.symbol);
+                break;
+            case 'IDENTIFIER':
+                console.log(tokenizer.identifier);
+                break;
+            case 'INT_CONST':
+                console.log(tokenizer.intVal);
+                break;
+            case 'STRING_CONST':
+                console.log(tokenizer.stringVal);
+                break;
+        }
+        tokenizer.advance();
     }
 }
 
