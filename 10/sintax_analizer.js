@@ -90,10 +90,17 @@ class JackTokenizer{
         this.len = this.inputFile.length;
     }
 
+    _insertSpaces(str = ''){
+        const symbolsRegex = /[ ]*([\(\)\[\]\{\}\.])[ ]*/g;
+        str = str.replaceAll(symbolsRegex, " $1 ").replaceAll(/ +/g, ' ');
+        return str;
+    }
+
     get hasMoreTokens(){
         if(this.index == this.len) return false;
-        if(this.inputFile[this.index].includes('"')) this.currentLine = this.inputFile[this.index].trim().split(/ (?=(?:[^"]*"[^"]*"|[";])*$)/g);
-        else this.currentLine = this.inputFile[this.index].trim().split(' ');
+        const currLine = this._insertSpaces(this.inputFile[this.index]);
+        if(currLine.includes('"')) this.currentLine = currLine.trim().split(/ (?=(?:[^"]*"[^"]*"|[";])*$)/g);
+        else this.currentLine = currLine.trim().split(' ');
         this.jlen = this.currentLine.length;
         if(this.index == this.len && this.jindex == this.jlen) return false;
         return true;
