@@ -152,3 +152,24 @@ Incrementa el valor del indice j en 1 mientras haya más tokens en la linea actu
 #### tokenType ####
 Es un getter que devuelve una constante dependiendo del tipo de token que se este evaluando actualmente.
 Revisa en la lista de palabras reservadas, luego en la de simbolos para ver si pertenece a una de esas listas, luego analiza mediante expresiones regulares si la estructura del token coincide con la de una constante numerica, de texto o si es un identificador.
+
+#### keyWord ####
+Se llama unicamente si el token actual es una palabra reservada y retorna el valor del token en mayusculas.
+
+#### symbol ####
+Se llama unicamente si el token actual es de tipo simbolo y retorna el valor del token.
+
+#### identifier ####
+Se llama unicamente si el token actual es de tipo identificador y retorna el valor del token.
+
+#### intVal ####
+Se llama unicamente si el tokan actual es de tipo numerico y retorna el valor del token.
+
+#### stringVal ####
+Se llama unicamente si el tokan actual es de tipo cadena de texto y retorna el valor del token eliminando las comillas.
+
+#### _token ####
+Este metodo no está dentro del diseño propuesto por el curso, lo agregué para ayudarme a retornar los tokens sin tener que escribir instrucciones largas en cada metodo que necesita obtener este valor.
+
+#### _insertSpaces ####
+Este metodo tampoco está dentro del diseño propuesto, lo utilizo para separar los simbolos mediante espacios, ya que normalmente estos se escriben pegados a palabras clave, identificadores, valores numericos o de texto e incluso junto a otros simbolos y eso dificulta identificar distintos tipos de token, así que inserta espacios para hacer más legible el codigo que está analizando.
