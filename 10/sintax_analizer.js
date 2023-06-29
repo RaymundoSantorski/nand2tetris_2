@@ -1,185 +1,37 @@
-const {readFileSync, openSync, writeFileSync} = require('fs');
-
-const keywords = [
-    'class',
-    'method',
-    'function',
-    'constructor',
-    'int',
-    'boolean',
-    'char',
-    'void',
-    'var',
-    'static',
-    'field',
-    'let',
-    'do',
-    'if',
-    'else',
-    'while',
-    'return',
-    'true',
-    'false',
-    'null',
-    'this',
-];
-
-const symbols = [
-    '{',
-    '}',
-    '(',
-    ')',
-    '[',
-    ']',
-    '.',
-    ',',
-    ';',
-    '+',
-    '-',
-    '*',
-    '/',
-    '&',
-    '|',
-    '<',
-    '>',
-    '=',
-    '~'
-];
-
-const numberStrings = [
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9'
-];  
-
-const tokenTypes = [
-    'KEYWORD',
-    'SYMBOL',
-    'INT_CONST',
-    'STRING_CONST',
-    'IDENTIFIER',
-];
-
-const unicodeRegex = /^"(?:(?![\n"])[\p{L}\p{P}\p{Nd} ])*"$/u;
-const identifierRegex = /(?!.*[" ])(^[A-Za-z_][A-Za-z0-9_]*)/u;
-const numberRegex = /[0-9]+/u;
-const commentRegex = /^\/\/[.]*/u;
-
-const  classNames = [];
-
-class JackTokenizer{
-    static inputFile;
-    static index;
-    static jindex;
-    static len;
-    static jlen;
-    static currentLine;
-
-    constructor(inputFile = []){
-        this.inputFile = inputFile.filter(value => (value !== '' || value !== '\n'));
-        this.inputFile = this.inputFile.filter(value => !commentRegex.test(value.trim()));
-        this.index = 0;
-        this.jindex = 0;
-        this.len = this.inputFile.length;
-    }
-
-    _insertSpaces(str = ''){
-        const symbolsRegex = /[ ]*([\(\)\[\]\{\}\.])[ ]*/g;
-        str = str.replaceAll(symbolsRegex, " $1 ").replaceAll(/ +/g, ' ');
-        return str;
-    }
-
-    get hasMoreTokens(){
-        if(this.index == this.len) return false;
-        const currLine = this._insertSpaces(this.inputFile[this.index]);
-        if(currLine.includes('"')) this.currentLine = currLine.trim().split(/ (?=(?:[^"]*"[^"]*"|[";])*$)/g);
-        else this.currentLine = currLine.trim().split(' ');
-        this.jlen = this.currentLine.length;
-        if(this.index == this.len && this.jindex == this.jlen) return false;
-        return true;
-    }
-
-    advance(){
-        if(this.jindex < this.jlen-1){
-            this.jindex++;
-        }
-        else{
-            this.index++;
-            this.jindex = 0;
-        }
-    }
-
-    get _token(){
-        return this.currentLine[this.jindex].replace(';', '');
-    }
-
-    get tokenType(){
-        if(keywords.includes(this._token)) return tokenTypes[0];
-        if(symbols.includes(this._token)) return tokenTypes[1];
-        if(numberRegex.test(this._token)) return tokenTypes[2];
-        if(unicodeRegex.test(this._token)) return tokenTypes[3];
-        if(identifierRegex.test(this._token)) return tokenTypes[4];
-    }
-
-    get keyWord(){
-        return this._token.toUpperCase();
-    }
-
-    get symbol(){
-        return this._token;
-    }
-
-    get identifier(){
-        return this._token;
-    }
-
-    get intVal(){
-        return this._token;
-    }
-
-    get stringVal(){
-        return this._token.replaceAll('"', '');
-    }
-}
-
-class CompilationEngine{
-    static outputfile;
-    constructor(outputfile){
-        this.outputfile = outputfile;
-    }
-
-    compileExpression(){}
-
-    compileTerm(){}
-
-    compileExpressionList(){}
-
-    compileStatements(){}
-
-    compileIfStatement(){}
-
-    compileWhileStatement(){}
-}
+const {readFileSync, openSync, existsSync} = require('fs');
+const JackTokenizer = require('./jackTokenizer');
+const CompilationEngine = require('./compilationEngine');
 
 function main(){
-    const filename = process.argv[2];
-    const buffer = readFileSync(`${filename}.jack`, {});
-    const outputfile = openSync(`${filename}.xml`, 'w');
-    const inputfile = buffer.toString().trim().split('\n');
+    const dir = process.argv[2];
+    let currentDir = dir;
+    let filename;
+    let inputfile;
+    let outputfile;
+    if(dir.includes('.jack')){
+        let aux = dir.split('/');
+        currentDir = aux.slice(0, -1).join('/');
+        filename = aux.slice(-1).join('').split('.')[0];
+        inputfile = readFileSync(dir, 'utf-8').split(/\r?\n/);
+        let [file] = dir.split('.');
+        outputfile = openSync(`${file}TT.xml`, 'w');
+    }else{
+        inputfile = readFileSync(`${dir}/index.jack`, 'utf-8').split(/\r?\n/);
+        filename = 'index';
+        let file;
+        if(dir.endsWith('/')){
+            file = dir.split('/').slice(-2)[0];
+        }else{
+            file = dir.split('/').slice(-1)[0];
+        }
+        outputfile = openSync(`${dir}/${file}TT.xml`, 'w');
+    }
     const tokenizer = new JackTokenizer(inputfile);
     const engine = new CompilationEngine(outputfile);
     while(tokenizer.hasMoreTokens){
         const tokenType = tokenizer.tokenType;
         let tag;
         let token;
-        console.log(tokenType);
         switch(tokenType){
             case 'KEYWORD':
                 token = tokenizer.keyWord;
@@ -205,12 +57,10 @@ function main(){
                 // throw new Error('Instrucción o tipo de dato no reconocido', tokenType);
         }
         tag = `<${tokenType}> ${token} </${tokenType}>\n`;
-        writeFileSync(outputfile, tag, {
-            encoding: 'utf-8',
-            flag: 'a+',
-        });
+        token && engine._write(tag); // if token has value, write the tag 
         tokenizer.advance();
     }
+    engine.close();
     console.log('Hecho!');
 }
 
