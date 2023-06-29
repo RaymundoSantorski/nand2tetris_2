@@ -1,9 +1,10 @@
 const {writeFileSync} = require('fs');
 class CompilationEngine{
     static outputfile;
+    static level = 0;
     constructor(outputfile){
         this.outputfile = outputfile;
-        this._write('<tokens>\n', 'a+');
+        this._write('<class>\n', 'a+');
     }
 
     compileExpression(){}
@@ -26,7 +27,7 @@ class CompilationEngine{
     }
 
     close(){
-        this._write('</tokens>');
+        this._write('</class>\n');
     }
 }
 
