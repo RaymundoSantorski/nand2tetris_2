@@ -91,7 +91,7 @@ class JackTokenizer{
     }
 
     _insertSpaces(str = ''){
-        const symbolsRegex = /[ ]*([\(\)\[\]\{\}\.\;])[ ]*/g;
+        const symbolsRegex = /[ ]*([\(\)\[\]\{\}\.\;,])[ ]*/g;
         str = str.replaceAll(symbolsRegex, " $1 ").replaceAll(/ +/g, ' ');
         return str;
     }
@@ -99,7 +99,7 @@ class JackTokenizer{
     get hasMoreTokens(){
         if(this.index == this.len) return false;
         const currLine = this._insertSpaces(this.inputFile[this.index]);
-        if(currLine.includes('"')) this.currentLine = currLine.trim().split(/ (?=(?:[^"]*"[^"]*"|[";])*$)/g);
+        if(currLine.includes('"')) this.currentLine = currLine.trim().split(/\s(?=(?:[^'"`]*(['"`])[^'"`]*\1)*[^'"`]*$)/g);
         else this.currentLine = currLine.trim().split(' ');
         this.jlen = this.currentLine.length;
         if(this.index == this.len && this.jindex == this.jlen) return false;
@@ -120,6 +120,13 @@ class JackTokenizer{
         return this.currentLine[this.jindex];
     }
 
+    get _lastToken(){
+        if(this.jindex>0){
+            return this.currentLine[this.jindex - 1];
+        }
+        return null;
+    }
+
     get tokenType(){
         if(keywords.includes(this._token)) return tokenTypes[0];
         if(symbols.includes(this._token)) return tokenTypes[1];
@@ -129,15 +136,15 @@ class JackTokenizer{
     }
 
     get keyWord(){
-        return this._token.toUpperCase();
+        return this._token;
     }
 
     get symbol(){
         const symbolTranslate = {
-            '<': "&lt",
-            '>': "&gt",
-            '"': "&quot",
-            '&': "&amp",
+            '<': "&lt;",
+            '>': "&gt;",
+            '"': "&quot;",
+            '&': "&amp;",
         }
         if(symbolTranslate[this._token]) return symbolTranslate[this._token];
         return this._token;
