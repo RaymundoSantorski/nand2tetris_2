@@ -2,6 +2,42 @@ const {readFileSync, openSync, existsSync} = require('fs');
 const JackTokenizer = require('./jackTokenizer');
 const CompilationEngine = require('./compilationEngine');
 
+const loop = (tokenizer, engine) => {
+    while(tokenizer.hasMoreTokens){
+        const tokenType = tokenizer.tokenType;
+        let tag;
+        let token;
+        switch(tokenType){
+            case 'KEYWORD':
+                tag = 'keyword';
+                token = tokenizer.keyWord;
+                break;
+            case 'SYMBOL':
+                tag = 'symbol';
+                token = tokenizer.symbol;
+                break;
+            case 'IDENTIFIER':
+                tag = 'identifier';
+                token = tokenizer.identifier;
+                break;
+            case 'INT_CONST':
+                tag = 'integerConstant';
+                token = tokenizer.intVal;
+                break;
+            case 'STRING_CONST':
+                tag = 'stringConstant';
+                token = tokenizer.stringVal;
+                break;
+            default:
+                // throw new Error('Instrucción o tipo de dato no reconocido', tokenType);
+        }
+        let data = `<${tag}> ${token} </${tag}>\n`;
+        console.log(tokenizer._lastToken);
+        token && engine._write(data); // if token has value, write the tag 
+        tokenizer.advance();
+    }
+}
+
 function main(){
     const dir = process.argv[2];
     let currentDir = dir;
@@ -28,38 +64,7 @@ function main(){
     }
     const tokenizer = new JackTokenizer(inputfile);
     const engine = new CompilationEngine(outputfile);
-    while(tokenizer.hasMoreTokens){
-        const tokenType = tokenizer.tokenType;
-        let tag;
-        let token;
-        switch(tokenType){
-            case 'KEYWORD':
-                token = tokenizer.keyWord;
-                console.log(`<${tokenType}> ${token} </${tokenType}>\n`);
-                break;
-            case 'SYMBOL':
-                token = tokenizer.symbol;
-                console.log(`<${tokenType}> ${token} </${tokenType}>\n`);
-                break;
-            case 'IDENTIFIER':
-                token = tokenizer.identifier;
-                console.log(`<${tokenType}> ${token} </${tokenType}>\n`);
-                break;
-            case 'INT_CONST':
-                token = tokenizer.intVal;
-                console.log(`<${tokenType}> ${token} </${tokenType}>\n`);
-                break;
-            case 'STRING_CONST':
-                token = tokenizer.stringVal;
-                console.log(`<${tokenType}> ${token} </${tokenType}>\n`);
-                break;
-            default:
-                // throw new Error('Instrucción o tipo de dato no reconocido', tokenType);
-        }
-        tag = `<${tokenType}> ${token} </${tokenType}>\n`;
-        token && engine._write(tag); // if token has value, write the tag 
-        tokenizer.advance();
-    }
+    loop(tokenizer, engine);
     engine.close();
     console.log('Hecho!');
 }
